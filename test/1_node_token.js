@@ -89,7 +89,7 @@ contract('LongevityToken', function (accounts) {
     return LongevityToken.deployed().then(function (instance) {
       return instance.mint(accounts[0], 12345, {from: accounts[0]});
     }).then(function (result) {
-      assert.equal(result['logs'][0]['event'], 'Mint');
+      assert.equal(result['logs'][0]['event'], 'Minted');
     });
   });
   it('Acc0 (owner, minter) balance equals to just-minted value', function () {
@@ -103,7 +103,7 @@ contract('LongevityToken', function (accounts) {
     return LongevityToken.deployed().then(function (instance) {
       return instance.mint(accounts[7], 36754, {from: accounts[0]});
     }).then(function (result) {
-      assert.equal(result['logs'][0]['event'], 'Mint');
+      assert.equal(result['logs'][0]['event'], 'Minted');
     });
   });
   it('Acc0 (owner, minter) can transfer tokens to another Acc9', function () {
