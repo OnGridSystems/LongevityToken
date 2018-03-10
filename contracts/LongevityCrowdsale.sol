@@ -18,20 +18,19 @@ import "./MultiOracle.sol";
  */
 
 contract LongevityCrowdsale is MultiOwnable, MultiOracle{
-  using SafeMath for uint256;
+    using SafeMath for uint256;
 
-  // The token being sold
-  LongevityToken public token;
+    // The token being sold
+    LongevityToken public token;
 
-  // Address where funds are collected
-  address public wallet;
+    // Address where funds are collected
+    address public wallet;
 
+    // Amount of wei raised
+    uint256 public weiRaised;
 
-  // Amount of wei raised
-  uint256 public weiRaised;
-
-  // Amount of USD cents raised
-  uint256 public USDcRaised;
+    // Amount of USD cents raised
+    uint256 public USDcRaised;
 
     // Minimum Deposit in USD cents
     uint256 public constant minContributionUSDc = 1000;
@@ -45,66 +44,61 @@ contract LongevityCrowdsale is MultiOwnable, MultiOracle{
     // Crowdsale end time
     uint256 endTime;
 
-  /**
-   * Event for token purchase logging
-   * @param purchaser who paid for the tokens
-   * @param beneficiary who got the tokens
-   * @param value weis paid for purchase
-   * @param amount amount of tokens purchased
-   */
-  event TokenPurchase(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);
+    /**
+     * Event for token purchase logging
+     * @param purchaser who paid for the tokens
+     * @param beneficiary who got the tokens
+     * @param value weis paid for purchase
+     * @param amount amount of tokens purchased
+     */
+    event TokenPurchase(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);
+
     // event for rate update logging
     event RateUpdate(uint256 rate);
-  /**
-   * @param _rateUSDcETH Number of token units a buyer gets per wei
-   * @param _wallet Address where collected funds will be forwarded to
-   * @param _token Address of the token being sold
-   */
-  function LongevityCrowdsale(uint256 _rateUSDcETH, address _wallet, LongevityToken _token) public MultiOwnable() {
-    require(_rateUSDcETH > 0);
-    require(_wallet != address(0));
-    require(_token != address(0));
+    /**
+     * @param _rateUSDcETH Number of token units a buyer gets per wei
+     * @param _wallet Address where collected funds will be forwarded to
+     * @param _token Address of the token being sold
+     */
+    function LongevityCrowdsale(uint256 _rateUSDcETH, address _wallet, LongevityToken _token) public MultiOwnable() {
+        require(_rateUSDcETH > 0);
+        require(_wallet != address(0));
+        require(_token != address(0));
+        rateUSDcETH = _rateUSDcETH;
+        wallet = _wallet;
+        token = _token;
+    }
 
-      rateUSDcETH = _rateUSDcETH;
-    wallet = _wallet;
-    token = _token;
-  }
+   /**
+    * @dev fallback function
+    */
+    function () external payable {
+        buyTokens(msg.sender);
+    }
 
-  /**
-   * @dev fallback function
-   */
-  function () external payable {
-    buyTokens(msg.sender);
-  }
-
-  /**
-   * @dev low level token purchase ***DO NOT OVERRIDE***
-   * @param _beneficiary Address performing the token purchase
-   */
-  function buyTokens(address _beneficiary) public payable {
-      uint256 weiAmount = msg.value;
-      require(_beneficiary != address(0));
-      require(weiAmount != 0);
-      uint256 USDcAmount = calculateUSDcAmount(weiAmount);
-      require(USDcAmount >= minContributionUSDc);
-      uint256 tokenAmount = calculateTokenAmount(weiAmount);
-
-      // update state
-      weiRaised = weiRaised.add(weiAmount);
-      USDcRaised = USDcRaised.add(USDcAmount);
-
-      token.transfer(_beneficiary, tokenAmount);
-      TokenPurchase(msg.sender, _beneficiary, weiAmount, tokenAmount);
-
-      wallet.transfer(msg.value);
-  }
+   /**
+    * @dev low level token purchase ***DO NOT OVERRIDE***
+    * @param _beneficiary Address performing the token purchase
+    */
+    function buyTokens(address _beneficiary) public payable {
+        uint256 weiAmount = msg.value;
+        require(_beneficiary != address(0));
+        require(weiAmount != 0);
+        uint256 USDcAmount = calculateUSDcAmount(weiAmount);
+        require(USDcAmount >= minContributionUSDc);
+        uint256 tokenAmount = calculateTokenAmount(weiAmount);
+        // update state
+        weiRaised = weiRaised.add(weiAmount);
+        USDcRaised = USDcRaised.add(USDcAmount);
+        token.mint(_beneficiary, tokenAmount);
+        TokenPurchase(msg.sender, _beneficiary, weiAmount, tokenAmount);
+        wallet.transfer(msg.value);
+    }
 
     // calculate deposit value in USD Cents
     function calculateUSDcAmount(uint256 _weiAmount) public view returns (uint256) {
-
         // wei per USD cent
         uint256 weiPerUSDc = 1 ether/rateUSDcETH;
-
         // Deposited value converted to USD cents
         uint256 depositValueInUSDc = _weiAmount.div(weiPerUSDc);
         return depositValueInUSDc;
