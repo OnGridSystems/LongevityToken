@@ -30,25 +30,25 @@ contract('LongevityCrowdsale', function (accounts) {
       assert.equal(result, LongevityToken.address);
     });
   });
-  it('calculateUSDcValue with view function for 0.2356151 Ether', function () {
+  it('Price equals to initialized on construction value', function () {
     return LongevityCrowdsale.deployed().then(function (instance) {
-      return instance.calculateUSDcValue(0.2356151 * 1e18);
+      return instance.rateUSDcETH();
     }).then(function (result) {
-      assert.equal(result, 30788);
+      assert.equal(result, 70896);
+    });
+  });
+  it('calculateUSDcAmount with view function for 0.2356151 Ether', function () {
+    return LongevityCrowdsale.deployed().then(function (instance) {
+      return instance.calculateUSDcAmount(0.2356151 * 1e18);
+    }).then(function (result) {
+      assert.equal(result, 16704);
     });
   });
   it('calculateTokenAmount with view function for 0.2356151 Ether (with bonus)', function () {
     return LongevityCrowdsale.deployed().then(function (instance) {
-      return instance.calculateTokenAmount(0.2356151 * 1e18, 45);
+      return instance.calculateTokenAmount(0.2356151 * 1e18);
     }).then(function (result) {
-      assert.equal(result, 44642);
-    });
-  });
-  it('Check rate equals initial', function () {
-    return LongevityCrowdsale.deployed().then(function (instance) {
-      return instance.rateUSDcETH();
-    }).then(function (result) {
-      assert.equal(result, 130671);
+      assert.equal(result, 23385);
     });
   });
   it('Check weiRaised == 0', function () {
