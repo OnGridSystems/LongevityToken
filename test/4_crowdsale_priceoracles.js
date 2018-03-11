@@ -1,5 +1,5 @@
-var LongevityToken = artifacts.require('LongevityToken');
 var LongevityCrowdsale = artifacts.require("LongevityCrowdsale");
+var LongevityToken = artifacts.require("LongevityToken");
 
 contract('LongevityCrowdsale', function (accounts) {
   it('Correct wallet collecting ethers', function () {
@@ -80,6 +80,60 @@ contract('LongevityCrowdsale', function (accounts) {
       return instance.sendTransaction({value: 141051681337000000, gas: 300000});
     }).then(function (result) {
       assert.equal(result['logs'][0]['event'], 'TokenPurchase');
+    });
+  });
+  it('Nobody including owner Acc0 unable to update rate if not in oracles list', function () {
+    return LongevityCrowdsale.deployed().then(function (instance) {
+      return instance.setPrice(70897, {from: accounts[0]});
+    }).then(assert.fail)
+      .catch(function (error) {
+        assert.isAbove(error.message.search('VM Exception while processing transaction'), -1, 'revert must be returned')
+      });
+  });
+  it('Acc1 unable to update rate if not in oracles list', function () {
+    return LongevityCrowdsale.deployed().then(function (instance) {
+      return instance.setPrice(70897, {from: accounts[1]});
+    }).then(assert.fail)
+      .catch(function (error) {
+        assert.isAbove(error.message.search('VM Exception while processing transaction'), -1, 'revert must be returned')
+      });
+  });
+  it('Acc1(nobody) unable to add entry to Price Oracles list', function () {
+    return LongevityCrowdsale.deployed().then(function (instance) {
+      return instance.addOracle(accounts[2], {from: accounts[1]});
+    }).then(assert.fail)
+      .catch(function (error) {
+        assert.isAbove(error.message.search('VM Exception while processing transaction'), -1, 'revert must be returned')
+      });
+  });
+  it('Acc0(owner) able to add Acc1 to Price Oracles list', function () {
+    return LongevityCrowdsale.deployed().then(function (instance) {
+      return instance.addOracle(accounts[1], {from: accounts[0]});
+    }).then(function (result) {
+      assert.equal(result['logs'][0]['event'], 'PriceOracleAdded');
+    });
+  });
+  it('Acc1(oracle) unable to update price out of allowed limit up', function () {
+    return LongevityCrowdsale.deployed().then(function (instance) {
+      return instance.setPrice(78000, {from: accounts[1]});
+    }).then(assert.fail)
+      .catch(function (error) {
+        assert.isAbove(error.message.search('VM Exception while processing transaction'), -1, 'revert must be returned')
+      });
+  });
+  it('Acc1(oracle) unable to update price out of allowed limit down', function () {
+    return LongevityCrowdsale.deployed().then(function (instance) {
+      return instance.setPrice(63000, {from: accounts[1]});
+    }).then(assert.fail)
+      .catch(function (error) {
+        assert.isAbove(error.message.search('VM Exception while processing transaction'), -1, 'revert must be returned')
+      });
+  });
+  it('Acc1(oracle) updates price in allowed limit up', function () {
+    return LongevityCrowdsale.deployed().then(function (instance) {
+      return instance.setPrice(77500, {from: accounts[1]});
+    }).then(function (result) {
+      assert.equal(result['logs'][0]['event'], 'PriceUpdated');
     });
   });
 /*
