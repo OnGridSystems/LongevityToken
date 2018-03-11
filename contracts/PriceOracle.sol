@@ -7,12 +7,23 @@ import "./MultiOwnable.sol";
  * @dev The Ownable contract has an owner address, and provides basic authorization control
  * functions, this simplifies the implementation of "user permissions".
  */
-contract MultiOracle is MultiOwnable {
+contract PriceOracle is MultiOwnable {
   mapping (address => bool) public oracles;
+  // USD cents per ETH exchange price
+  uint256 public priceUSDcETH;
 
+  event PriceOracleAdded(address indexed newOwner);
+  event PriceOracleRemoved(address indexed removedOwner);
+  // event for price update logging
+  event PriceUpdate(uint256 price);
 
-  event OracleAdded(address indexed newOwner);
-  event OracleRemoved(address indexed removedOwner);
+  /**
+ * @param _priceUSDcETH Number of token units a buyer gets per wei
+ */
+  function PriceOracle(uint256 _priceUSDcETH) public MultiOwnable() {
+    require(_priceUSDcETH > 0);
+    priceUSDcETH = _priceUSDcETH;
+  }
 
 
   /**
@@ -30,7 +41,7 @@ contract MultiOracle is MultiOwnable {
   function addOracle(address _address) onlyOracle public {
     require(_address != address(0));
     oracles[_address] = true;
-    OracleAdded(_address);
+    PriceOracleAdded(_address);
   }
 
   /**
@@ -39,7 +50,7 @@ contract MultiOracle is MultiOwnable {
    */
   function delOracle(address _address) onlyOwner public {
     oracles[_address] = false;
-    OracleRemoved(_address);
+    PriceOracleRemoved(_address);
   }
 
 }

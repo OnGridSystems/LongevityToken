@@ -2,7 +2,7 @@ pragma solidity ^0.4.18;
 
 import "./LongevityToken.sol";
 import "./MultiOwnable.sol";
-import "./MultiOracle.sol";
+import "./PriceOracle.sol";
 
 /**
  * @title Crowdsale
@@ -17,7 +17,7 @@ import "./MultiOracle.sol";
  * behavior.
  */
 
-contract LongevityCrowdsale is MultiOwnable, MultiOracle{
+contract LongevityCrowdsale is MultiOwnable, PriceOracle{
     using SafeMath for uint256;
 
     // The token being sold
@@ -33,10 +33,8 @@ contract LongevityCrowdsale is MultiOwnable, MultiOracle{
     uint256 public USDcRaised;
 
     // Minimum Deposit in USD cents
-    uint256 public constant minContributionUSDc = 1000;
+    uint256 public constant minContributionUSDc = 10000;
 
-    // USD cents per ETH exchange rate
-    uint256 public rateUSDcETH;
 
     // Bonus percent
     uint256 public constant bonusPercent = 40;
@@ -53,18 +51,15 @@ contract LongevityCrowdsale is MultiOwnable, MultiOracle{
      */
     event TokenPurchase(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);
 
-    // event for rate update logging
-    event RateUpdate(uint256 rate);
+
     /**
-     * @param _rateUSDcETH Number of token units a buyer gets per wei
+     * @param _priceUSDcETH Number of token units a buyer gets per wei
      * @param _wallet Address where collected funds will be forwarded to
      * @param _token Address of the token being sold
      */
-    function LongevityCrowdsale(uint256 _rateUSDcETH, address _wallet, LongevityToken _token) public MultiOwnable() {
-        require(_rateUSDcETH > 0);
+    function LongevityCrowdsale(uint256 _priceUSDcETH, address _wallet, LongevityToken _token) public PriceOracle(_priceUSDcETH) {
         require(_wallet != address(0));
         require(_token != address(0));
-        rateUSDcETH = _rateUSDcETH;
         wallet = _wallet;
         token = _token;
     }
@@ -98,7 +93,7 @@ contract LongevityCrowdsale is MultiOwnable, MultiOracle{
     // calculate deposit value in USD Cents
     function calculateUSDcAmount(uint256 _weiAmount) public view returns (uint256) {
         // wei per USD cent
-        uint256 weiPerUSDc = 1 ether/rateUSDcETH;
+        uint256 weiPerUSDc = 1 ether/priceUSDcETH;
         // Deposited value converted to USD cents
         uint256 depositValueInUSDc = _weiAmount.div(weiPerUSDc);
         return depositValueInUSDc;

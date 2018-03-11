@@ -32,7 +32,7 @@ contract('LongevityCrowdsale', function (accounts) {
   });
   it('Price equals to initialized on construction value', function () {
     return LongevityCrowdsale.deployed().then(function (instance) {
-      return instance.rateUSDcETH();
+      return instance.priceUSDcETH();
     }).then(function (result) {
       assert.equal(result, 70896);
     });
@@ -58,6 +58,7 @@ contract('LongevityCrowdsale', function (accounts) {
       assert.equal(result, 0);
     });
   });
+  /*
   it('Non-owner prohibited to update rate', function () {
     return LongevityCrowdsale.deployed().then(function (instance) {
       return instance.setRate(130672, {from: accounts[1]});
@@ -65,27 +66,23 @@ contract('LongevityCrowdsale', function (accounts) {
       assert.isAbove(error.message.search('VM Exception while processing transaction'), -1, 'revert must be returned')
     });
   });
-  it('Check rate equals initial', function () {
-    return LongevityCrowdsale.deployed().then(function (instance) {
-      return instance.rateUSDcETH();
-    }).then(function (result) {
-      assert.equal(result, 130671);
-    });
-  });
+  */
   it('Send less than 100 USD to fallback function', function () {
     return LongevityCrowdsale.deployed().then(function (instance) {
-      return instance.sendTransaction({value: 757627935808251, gas: 300000});
-    }).catch(function (error) {
+      return instance.sendTransaction({value: 141051681336000000, gas: 300000});
+    }).then(assert.fail)
+      .catch(function (error) {
       assert.isAbove(error.message.search('VM Exception while processing transaction'), -1, 'revert must be returned')
     });
   });
   it('Send more than 100 USD to fallback function', function () {
     return LongevityCrowdsale.deployed().then(function (instance) {
-      return instance.sendTransaction({value: 76569678407350600, gas: 300000});
+      return instance.sendTransaction({value: 141051681337000000, gas: 300000});
     }).then(function (result) {
       assert.equal(result['logs'][0]['event'], 'TokenPurchase');
     });
   });
+/*
   it('Owner updates rate in allowed limits +9%', function () {
     return LongevityCrowdsale.deployed().then(function (instance) {
       return instance.setRate(142431);
@@ -205,21 +202,5 @@ contract('LongevityCrowdsale', function (accounts) {
           assert.equal(result, accounts[0]);
       });
   });
-  it('Owner is able to update wallet', function () {
-      return LongevityCrowdsale.deployed().then(function (instance) {
-          return instance.setWallet(accounts[3]);
-      }).then(function (result) {
-          assert.equal(result['logs'][0]['event'], 'WalletSet');
-      });
-  });
-  it('Wallet collecting ethers changed after update by Owner', function () {
-      return LongevityCrowdsale.deployed().then(function (instance) {
-          return instance.wallet();
-      }).then(function (result) {
-          assert.equal(result, accounts[3]);
-      });
-  });
+ */
 });
-
-/*
-*/
