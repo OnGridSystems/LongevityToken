@@ -17,7 +17,7 @@ import "./PriceOracle.sol";
  * behavior.
  */
 
-contract LongevityCrowdsale is MultiOwnable, PriceOracle{
+contract LongevityCrowdsale is MultiOwnable, PriceOracle {
     using SafeMath for uint256;
 
     // The token being sold
@@ -64,17 +64,17 @@ contract LongevityCrowdsale is MultiOwnable, PriceOracle{
         token = _token;
     }
 
-   /**
-    * @dev fallback function
-    */
-    function () external payable {
+    /**
+     * @dev fallback function
+     */
+    function() external payable {
         buyTokens(msg.sender);
     }
 
-   /**
-    * @dev low level token purchase ***DO NOT OVERRIDE***
-    * @param _beneficiary Address performing the token purchase
-    */
+    /**
+     * @dev low level token purchase ***DO NOT OVERRIDE***
+     * @param _beneficiary Address performing the token purchase
+     */
     function buyTokens(address _beneficiary) public payable {
         uint256 weiAmount = msg.value;
         require(_beneficiary != address(0));
@@ -93,7 +93,7 @@ contract LongevityCrowdsale is MultiOwnable, PriceOracle{
     // calculate deposit value in USD Cents
     function calculateUSDcAmount(uint256 _weiAmount) public view returns (uint256) {
         // wei per USD cent
-        uint256 weiPerUSDc = 1 ether/priceUSDcETH;
+        uint256 weiPerUSDc = 1 ether / priceUSDcETH;
         // Deposited value converted to USD cents
         uint256 depositValueInUSDc = _weiAmount.div(weiPerUSDc);
         return depositValueInUSDc;

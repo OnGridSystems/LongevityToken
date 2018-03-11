@@ -17,7 +17,7 @@ contract MultiMintableToken is StandardToken, MultiOwnable {
     event MinterRemoved(address indexed removedMinter);
 
     bool public mintingFinished = false;
-    mapping (address => bool) public minters;
+    mapping(address => bool) public minters;
 
     function MultiMintableToken() public MultiOwnable() {}
 
