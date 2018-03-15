@@ -5,8 +5,9 @@ import "./MultiOwnable.sol";
 
 
 /**
- * @title Mintable token
- * @dev Simple ERC20 Token example, with mintable token creation
+ * @title MultiMintableToken is a mintable token with multiple miners.
+ * minters can be added and deleted.
+ * @dev Based on OpenZeppelin simple ERC20 Token example, with mintable token creation
  * @dev Issue: * https://github.com/OpenZeppelin/zeppelin-solidity/issues/120
  * Based on code by TokenMarketNet: https://github.com/TokenMarketNet/ico/blob/master/contracts/MintableToken.sol
  */
@@ -27,7 +28,7 @@ contract MultiMintableToken is StandardToken, MultiOwnable {
     }
 
     /**
-     * @dev Throws if called by any account other than the owner.
+     * @dev Throws if called by any account other than the minter.
      */
     modifier onlyMinter() {
         require(minters[msg.sender]);
@@ -59,8 +60,8 @@ contract MultiMintableToken is StandardToken, MultiOwnable {
     }
 
     /**
-     * @dev Adds administrative role to address
-     * @param _address The address that will get administrative privileges
+     * @dev Function to add minter role to given address
+     * @param _address The address that will get minter privileges
      */
     function addMinter(address _address) public onlyOwner {
         require(_address != address(0));
@@ -69,8 +70,8 @@ contract MultiMintableToken is StandardToken, MultiOwnable {
     }
 
     /**
-     * @dev Removes administrative role from address
-     * @param _address The address to remove administrative privileges from
+     * @dev Function to remove minter role to given address
+     * @param _address The address to revoke minter privileges
      */
     function delMinter(address _address) public onlyOwner {
         minters[_address] = false;

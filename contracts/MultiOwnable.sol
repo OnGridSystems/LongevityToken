@@ -2,8 +2,8 @@ pragma solidity ^0.4.18;
 
 
 /**
- * @title Ownable
- * @dev The Ownable contract has an owner address, and provides basic authorization control
+ * @title MultiOwnable
+ * @dev The MultiOwnable contract has a set of owner addresses, and provides basic authorization control
  * functions, this simplifies the implementation of "user permissions".
  */
 contract MultiOwnable {
@@ -14,7 +14,7 @@ contract MultiOwnable {
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
     /**
-     * @dev The Ownable constructor sets the original `owner` of the contract to the sender
+     * @dev The MultiOwnable constructor sets the original `owner` of the contract to the sender
      * account.
      */
     function MultiOwnable() public {
@@ -58,5 +58,4 @@ contract MultiOwnable {
         delOwner(msg.sender);
         OwnershipTransferred(msg.sender, newOwner);
     }
-
 }
